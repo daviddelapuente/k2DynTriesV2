@@ -1,5 +1,7 @@
 #include "treeBlock.h"
 
+//wrapped version
+
 // Transform a node from it pair <NODE_TYPE,OFFSET_TYPE> to it absolute representation (position) in DFUDS
 uint16_t absolutePosition(treeNode &node){
     return 4*node.first + node.second;

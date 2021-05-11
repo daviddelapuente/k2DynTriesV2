@@ -1,4 +1,4 @@
-#include "treeBlock.c"
+#include "treeBlockApi.h"
 #include "assert.h"
 
 void test100Deterministic1(){

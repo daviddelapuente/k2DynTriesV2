@@ -15,12 +15,13 @@
 #include "globalConstants.h"
 #include "subtreeInfo.h"
 #include "nodeInfo.h"
-#include "treeNode.h"
+#include "treeNode.c"
 #include "blockGlobalVars.h"
 #include "trieNode.h"
 #include "treeBlock.h"
 #include "blockPtr.h"
-
+#include "insertDeleteAPI.c"
+#include "treeBlock.c"
 
 
 #endif

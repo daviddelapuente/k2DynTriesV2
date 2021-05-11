@@ -1,7 +1,3 @@
-//
-// Created by margarita on 10/5/21.
-//
-
 #ifndef K2DYNTRIESV2_TREEBLOCK_H
 #define K2DYNTRIESV2_TREEBLOCK_H
 

@@ -3,18 +3,16 @@
 
 void test100Deterministic1(){
 
+
+    blockGlobalVars *bgv=(blockGlobalVars*) malloc(sizeof(blockGlobalVars));
+    bgv->init(4,S3,0.99);
+
     trieNode *t = (trieNode *) malloc(sizeof(trieNode));
     t->children[0] = t->children[1] = t->children[2] = t->children[3] = NULL;
     t->block = NULL;
+    t->bgv=bgv;
 
-    double alpha = 0.99;
-    uint16_t N1 = 4;
-    uint16_t Nt = S3;
-    sizeArray = (uint16_t *) malloc(sizeof(uint16_t)*(Nt+1));
-    for (int i = 0; i <= Nt; ++i) {
-        if (i > N1) N1 = 4*(((uint16_t)ceil((double)N1/alpha)+3)/4);
-        sizeArray[i] = N1;
-    }
+
 
     long long c=0;
     while(c<=100){
@@ -178,18 +176,17 @@ void test100Deterministic1(){
 }
 
 void test1000Deterministic1(){
+
+    blockGlobalVars *bgv=(blockGlobalVars*) malloc(sizeof(blockGlobalVars));
+    bgv->init(4,S3,0.99);
+
     trieNode *t = (trieNode *) malloc(sizeof(trieNode));
     t->children[0] = t->children[1] = t->children[2] = t->children[3] = NULL;
     t->block = NULL;
+    t->bgv=bgv;
 
-    double alpha = 0.99;
-    uint16_t N1 = 4;
-    uint16_t Nt = S3;
-    sizeArray = (uint16_t *) malloc(sizeof(uint16_t)*(Nt+1));
-    for (int i = 0; i <= Nt; ++i) {
-        if (i > N1) N1 = 4*(((uint16_t)ceil((double)N1/alpha)+3)/4);
-        sizeArray[i] = N1;
-    }
+
+
     long long c=0;
     while(c<=1000){
         uint8_t path[30]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,(uint8_t) ((c/16384)%4),(uint8_t) ((c/4096)%4),(uint8_t) ((c/1024)%4),(uint8_t) ((c/256)%4),(uint8_t) ((c/64)%4),(uint8_t) ((c/16)%4),(uint8_t) ((c/4)%4),(uint8_t) (c%4)};
@@ -352,18 +349,14 @@ void test1000Deterministic1(){
 }
 
 void test10000Deterministic1(){
+
+    blockGlobalVars *bgv=(blockGlobalVars*) malloc(sizeof(blockGlobalVars));
+    bgv->init(4,S3,0.99);
+
     trieNode *t = (trieNode *) malloc(sizeof(trieNode));
     t->children[0] = t->children[1] = t->children[2] = t->children[3] = NULL;
     t->block = NULL;
-
-    double alpha = 0.99;
-    uint16_t N1 = 4;
-    uint16_t Nt = S3;
-    sizeArray = (uint16_t *) malloc(sizeof(uint16_t)*(Nt+1));
-    for (int i = 0; i <= Nt; ++i) {
-        if (i > N1) N1 = 4*(((uint16_t)ceil((double)N1/alpha)+3)/4);
-        sizeArray[i] = N1;
-    }
+    t->bgv=bgv;
 
     long long c=0;
     while(c<=10000){
@@ -531,21 +524,16 @@ void test10000Deterministic1(){
 
 }
 
-/*
+
 
 void test100000Deterministic1(){
+    blockGlobalVars *bgv=(blockGlobalVars*) malloc(sizeof(blockGlobalVars));
+    bgv->init(4,S3,0.99);
+
     trieNode *t = (trieNode *) malloc(sizeof(trieNode));
     t->children[0] = t->children[1] = t->children[2] = t->children[3] = NULL;
     t->block = NULL;
-
-    double alpha = 0.99;
-    N1 = 4;
-    Nt = S3;
-    sizeArray = (uint16_t *) malloc(sizeof(uint16_t)*(Nt+1));
-    for (int i = 0; i <= Nt; ++i) {
-        if (i > N1) N1 = 4*(((uint16_t)ceil((double)N1/alpha)+3)/4);
-        sizeArray[i] = N1;
-    }
+    t->bgv=bgv;
 
     long long c=0;
     while(c<=100000){
@@ -716,18 +704,13 @@ void test100000Deterministic1(){
 
 void test1000000Deterministic1(){
 
+    blockGlobalVars *bgv=(blockGlobalVars*) malloc(sizeof(blockGlobalVars));
+    bgv->init(4,S3,0.99);
+
     trieNode *t = (trieNode *) malloc(sizeof(trieNode));
     t->children[0] = t->children[1] = t->children[2] = t->children[3] = NULL;
     t->block = NULL;
-
-    double alpha = 0.99;
-    N1 = 4;
-    Nt = S3;
-    sizeArray = (uint16_t *) malloc(sizeof(uint16_t)*(Nt+1));
-    for (int i = 0; i <= Nt; ++i) {
-        if (i > N1) N1 = 4*(((uint16_t)ceil((double)N1/alpha)+3)/4);
-        sizeArray[i] = N1;
-    }
+    t->bgv=bgv;
 
     long long c=0;
     while(c<=1000000){
@@ -924,18 +907,13 @@ void test5MDeterministic1(){
 
 
 
+    blockGlobalVars *bgv=(blockGlobalVars*) malloc(sizeof(blockGlobalVars));
+    bgv->init(4,S3,0.99);
+
     trieNode *t = (trieNode *) malloc(sizeof(trieNode));
     t->children[0] = t->children[1] = t->children[2] = t->children[3] = NULL;
     t->block = NULL;
-
-    double alpha = 0.99;
-    N1 = 4;
-    Nt = S3;
-    sizeArray = (uint16_t *) malloc(sizeof(uint16_t)*(Nt+1));
-    for (int i = 0; i <= Nt; ++i) {
-        if (i > N1) N1 = 4*(((uint16_t)ceil((double)N1/alpha)+3)/4);
-        sizeArray[i] = N1;
-    }
+    t->bgv=bgv;
 
     long long c=0;
     while(c<=5000000){
@@ -1109,18 +1087,13 @@ void test10MDeterministic1(){
 
 
 
+    blockGlobalVars *bgv=(blockGlobalVars*) malloc(sizeof(blockGlobalVars));
+    bgv->init(4,S3,0.99);
+
     trieNode *t = (trieNode *) malloc(sizeof(trieNode));
     t->children[0] = t->children[1] = t->children[2] = t->children[3] = NULL;
     t->block = NULL;
-
-    double alpha = 0.99;
-    N1 = 4;
-    Nt = S3;
-    sizeArray = (uint16_t *) malloc(sizeof(uint16_t)*(Nt+1));
-    for (int i = 0; i <= Nt; ++i) {
-        if (i > N1) N1 = 4*(((uint16_t)ceil((double)N1/alpha)+3)/4);
-        sizeArray[i] = N1;
-    }
+    t->bgv=bgv;
 
     long long c=0;
     while(c<=10000000){
@@ -1160,18 +1133,13 @@ void test10MDeterministic1(){
 
 
 void dummyTest(){
+    blockGlobalVars *bgv=(blockGlobalVars*) malloc(sizeof(blockGlobalVars));
+    bgv->init(4,S3,0.99);
+
     trieNode *t = (trieNode *) malloc(sizeof(trieNode));
     t->children[0] = t->children[1] = t->children[2] = t->children[3] = NULL;
     t->block = NULL;
-
-    double alpha = 0.99;
-    N1 = 4;
-    Nt = S3;
-    sizeArray = (uint16_t *) malloc(sizeof(uint16_t)*(Nt+1));
-    for (int i = 0; i <= Nt; ++i) {
-        if (i > N1) N1 = 4*(((uint16_t)ceil((double)N1/alpha)+3)/4);
-        sizeArray[i] = N1;
-    }
+    t->bgv=bgv;
 
     long long c=0;
     while(c<=10000){
@@ -1205,18 +1173,13 @@ void dummyTest(){
 
 
 void testDeletion(){
+    blockGlobalVars *bgv=(blockGlobalVars*) malloc(sizeof(blockGlobalVars));
+    bgv->init(4,S3,0.99);
+
     trieNode *t = (trieNode *) malloc(sizeof(trieNode));
     t->children[0] = t->children[1] = t->children[2] = t->children[3] = NULL;
     t->block = NULL;
-
-    double alpha = 0.99;
-    N1 = 4;
-    Nt = S3;
-    sizeArray = (uint16_t *) malloc(sizeof(uint16_t)*(Nt+1));
-    for (int i = 0; i <= Nt; ++i) {
-        if (i > N1) N1 = 4*(((uint16_t)ceil((double)N1/alpha)+3)/4);
-        sizeArray[i] = N1;
-    }
+    t->bgv=bgv;
 
     long long c=0;
     while(c<=100000){
@@ -1244,7 +1207,7 @@ void testDeletion(){
     }
 
 }
-*/
+
 
 
 int main(){
@@ -1252,9 +1215,9 @@ int main(){
     test100Deterministic1();
     test1000Deterministic1();
     test10000Deterministic1();
-    //test100000Deterministic1();
-    //test1000000Deterministic1();
-    //test5MDeterministic1();
+    test100000Deterministic1();
+    test1000000Deterministic1();
+    test5MDeterministic1();
     //test10MDeterministic1();
     printf("congratulations, all test passed in\n");
     return 0;

@@ -5,8 +5,6 @@
 #ifndef K2DYNTRIESV2_TREEBLOCK_H
 #define K2DYNTRIESV2_TREEBLOCK_H
 
-
-
 //this is the main structure. the more important attributes are:
 //dfuds: is the bit array containing the topology
 //ptr: is the array of pointers to the child blocks (the frontier)
@@ -19,6 +17,7 @@ struct treeBlock
     uint16_t *dfuds;  // DFUDS of the tree block
     void /*blockPTR*/ *ptr;    // Pointers to child blocks (this is a pointer to a data structure containing the pointer to the block (please read  blockPtr below))
     uint16_t nPtrs;   // number of pointers to child blocks
+    blockGlobalVars *bgv;
 
     //methods
     //inserts in a block

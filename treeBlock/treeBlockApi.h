@@ -10,13 +10,6 @@
 #include <stdint.h>
 #include <time.h>
 
-// Global table that stores the sizes of the blocks, used for growing them
-uint16_t *sizeArray; // array of sizes
-
-// Minimum and maximum block sizes
-uint16_t N1;
-uint16_t Nt;
-
 //our modules
 #include "preComputedTables.h"
 #include "globalConstants.h"

@@ -1,10 +1,8 @@
-#include "treeBlock.h"
-
-//wrapped version
+#include "treeBlockApi.h"
 
 // Transform a node from it pair <NODE_TYPE,OFFSET_TYPE> to it absolute representation (position) in DFUDS
 uint16_t absolutePosition(treeNode &node){
-    return 4*node.first + node.second;
+return 4*node.first + node.second;
 }
 
 //todo: por que inline?
@@ -12,20 +10,20 @@ uint16_t absolutePosition(treeNode &node){
 for example, if your node is <1,1> it absolute position will be 5
 then the next node will be <1,2> because it absolute position will be 6*/
 inline void nextNode(treeNode &node){
-    //this is like (second+1)%4
-    node.second = (node.second+1) & 0x3;
-    //this sum 1 <=> node.second=0, and will sum 0 in an ohter case
-    node.first += !node.second;
+//this is like (second+1)%4
+node.second = (node.second+1) & 0x3;
+//this sum 1 <=> node.second=0, and will sum 0 in an ohter case
+node.first += !node.second;
 }
 
 /*give the previous node in the dfuds.
 for example, if your node is <1,0> it absolute position will be 4
 then the next node will be <0,3> because it absolute position will be 3*/
 inline void prevNode(treeNode &node){
-    //only subtract 1 if node.second=0
-    node.first -= !node.second;
-    //this is like (second-1)%4
-    node.second = (node.second-1) & 0x3;
+//only subtract 1 if node.second=0
+node.first -= !node.second;
+//this is like (second-1)%4
+node.second = (node.second-1) & 0x3;
 }
 
 
@@ -57,9 +55,9 @@ void treeBlock::freeTreeBlock2(){
 the idea is that the new size of the block should be sizeArray[nNodes+extraNodes]
 remember that sizeArray is an array of max sizes per blocks.*/
 void treeBlock::grow(uint16_t extraNodes){
-     dfuds = (uint16_t *) realloc(dfuds, sizeof(uint16_t)*((sizeArray[nNodes+extraNodes] + 3)/4));
-     //the new max is sizeArray[nNodes+extraNodes]
-     maxNodes = 4*((sizeArray[nNodes+extraNodes]+3)/4);
+    dfuds = (uint16_t *) realloc(dfuds, sizeof(uint16_t)*((sizeArray[nNodes+extraNodes] + 3)/4));
+    //the new max is sizeArray[nNodes+extraNodes]
+    maxNodes = 4*((sizeArray[nNodes+extraNodes]+3)/4);
 }
 
 /*this method, realloc dfuds in a smaller array
@@ -89,123 +87,123 @@ uint16_t depthVector[4096];
 //return a treeNode where the subtree begin (the end is in subTreeSize)
 treeNode treeBlock::selectSubtree2(uint16_t maxDepth, uint16_t & subTreeSize, uint16_t & depthSelectN){
 
-    // depth is the depth of the root of the block
-    uint16_t depth= rootDepth + 1;
-    //curFlag=0 means that we are in the first fronteir node
-    uint16_t curFlag = 0;
-    //initialize a nextFlag
-    int32_t nextFlag;
+// depth is the depth of the root of the block
+uint16_t depth= rootDepth + 1;
+//curFlag=0 means that we are in the first fronteir node
+uint16_t curFlag = 0;
+//initialize a nextFlag
+int32_t nextFlag;
 
-    //current node codification
-    uint8_t cNodeCod = (*dfuds>>12) & 0x000f;
+//current node codification
+uint8_t cNodeCod = (*dfuds>>12) & 0x000f;
 
-    //init the index of the 3 arrays (stackSS,subtrees,depthVector)
-    uint16_t ssTop=0, subtreeTop = 0, depthTop = 0;
-    //the first node preorder is 0 and the number of children is a number between 0 and 4 and is given by the table nChildernT and de cNodeCod codification
-    stackSS[ssTop].preorder = 0;
-    stackSS[ssTop++].nChildren =  nChildrenT[cNodeCod];
+//init the index of the 3 arrays (stackSS,subtrees,depthVector)
+uint16_t ssTop=0, subtreeTop = 0, depthTop = 0;
+//the first node preorder is 0 and the number of children is a number between 0 and 4 and is given by the table nChildernT and de cNodeCod codification
+stackSS[ssTop].preorder = 0;
+stackSS[ssTop++].nChildren =  nChildrenT[cNodeCod];
 
-    //this will keep a finger on the frontier
-    if (nPtrs == 0 || curFlag >= nPtrs){
-        //there arent more flags (fronteir nodes), we set the nextFlago to -1 to distinguish it
-        nextFlag = -1;
-    }else{
-        //we continue with the next flag (this is the current flag in our ptr array)
-        nextFlag = ((blockPtr *)ptr)[curFlag].flag;
-    }
+//this will keep a finger on the frontier
+if (nPtrs == 0 || curFlag >= nPtrs){
+//there arent more flags (fronteir nodes), we set the nextFlago to -1 to distinguish it
+nextFlag = -1;
+}else{
+//we continue with the next flag (this is the current flag in our ptr array)
+nextFlag = ((blockPtr *)ptr)[curFlag].flag;
+}
 
-    //we iter for each node in the block to calculeta the subtrees sizes
-    for (uint16_t i=1; i < nNodes; ++i) {
-        //if we are in a frontier
-        if (i == nextFlag) {
+//we iter for each node in the block to calculeta the subtrees sizes
+for (uint16_t i=1; i < nNodes; ++i) {
+//if we are in a frontier
+if (i == nextFlag) {
 
-            //go to the next fronteir node
-            ++curFlag;
-            //if we run out of fronteir nodes, we set nextFlag to -1 to distinguish it
-            if (nPtrs == 0 || curFlag >= nPtrs){
-                nextFlag = -1;
-            }else{
-                //we continue with the next fronteir node
-                nextFlag = ((blockPtr *)ptr)[curFlag].flag;
-            }
+//go to the next fronteir node
+++curFlag;
+//if we run out of fronteir nodes, we set nextFlag to -1 to distinguish it
+if (nPtrs == 0 || curFlag >= nPtrs){
+nextFlag = -1;
+}else{
+//we continue with the next fronteir node
+nextFlag = ((blockPtr *)ptr)[curFlag].flag;
+}
 
-            //substract 1 from the childrens that are not visited yet in the node (this is stackSS[sstop-1])
-            --stackSS[ssTop-1].nChildren;
+//substract 1 from the childrens that are not visited yet in the node (this is stackSS[sstop-1])
+--stackSS[ssTop-1].nChildren;
 
-        //if we are not a fronteir node (and still we dont pass the max Depth)
-        }else if (depth < maxDepth) {
-            //in this part we fill the nodeInfo i
-            //fill the preorder of the nodeInfo
-            stackSS[ssTop].preorder = i;
-            //get the node code
-            cNodeCod = (dfuds[i>>2]>>shiftT[i & 0x3]) & 0x000f;
-            //fill the childrens of the node info, and then sstop++
-            stackSS[ssTop++].nChildren = nChildrenT[cNodeCod];
-            depth++;
-        }else {
-            //we only actualize that we visited this node and continue with the next
-            --stackSS[ssTop-1].nChildren;
-        }
+//if we are not a fronteir node (and still we dont pass the max Depth)
+}else if (depth < maxDepth) {
+//in this part we fill the nodeInfo i
+//fill the preorder of the nodeInfo
+stackSS[ssTop].preorder = i;
+//get the node code
+cNodeCod = (dfuds[i>>2]>>shiftT[i & 0x3]) & 0x000f;
+//fill the childrens of the node info, and then sstop++
+stackSS[ssTop++].nChildren = nChildrenT[cNodeCod];
+depth++;
+}else {
+//we only actualize that we visited this node and continue with the next
+--stackSS[ssTop-1].nChildren;
+}
 
-        //now we fill the subtrees info
-        //this ssTop~i so this is O(n^2)
-        //todo: necesito mas orientacion de como se hace esto :(
-        while (ssTop > 0 && stackSS[ssTop-1].nChildren == 0) {
-            subtrees[subtreeTop].preorder = stackSS[ssTop-1].preorder;
-            subtrees[subtreeTop++].subtreeSize = i-stackSS[ssTop-1].preorder+1;
-            --ssTop;
-            depthVector[depthTop++] = --depth;
-            if (ssTop == 0) {
-                break;
-            }else {
-                stackSS[ssTop-1].nChildren--;
-            }
-        }
-    }
-
-
-    // Now we iter the subtree vector to choose the better subbtree
-    int16_t  nodemin, min, posmin;
-    uint16_t leftmost = MAX_UINT_16;
-    for (uint16_t i = 0; i < subtreeTop; ++i) {
-        //of all the subtrees we will prefer the ones that it sizes is between 25% and 75% of the actual block.
-        //and from all of those, we will prefer the left most (in preorder)
-        if (((float)nNodes/4) <= subtrees[i].subtreeSize && subtrees[i].subtreeSize <= ((float)3*nNodes/4) && subtrees[i].preorder < leftmost) {
-            leftmost = nodemin = subtrees[i].preorder;
-            posmin = i;
-        }
-    }
+//now we fill the subtrees info
+//this ssTop~i so this is O(n^2)
+//todo: necesito mas orientacion de como se hace esto :(
+while (ssTop > 0 && stackSS[ssTop-1].nChildren == 0) {
+subtrees[subtreeTop].preorder = stackSS[ssTop-1].preorder;
+subtrees[subtreeTop++].subtreeSize = i-stackSS[ssTop-1].preorder+1;
+--ssTop;
+depthVector[depthTop++] = --depth;
+if (ssTop == 0) {
+break;
+}else {
+stackSS[ssTop-1].nChildren--;
+}
+}
+}
 
 
-    //border case, this means, that the last filter didn choose any candidate, so we will use another metric
-    //and the new subtree is the one that minimize nNodes-2*subtreeSize.
-    if (leftmost == MAX_UINT_16) {
-        int16_t diff;
-        nodemin = subtrees[0].preorder,
+// Now we iter the subtree vector to choose the better subbtree
+int16_t  nodemin, min, posmin;
+uint16_t leftmost = MAX_UINT_16;
+for (uint16_t i = 0; i < subtreeTop; ++i) {
+//of all the subtrees we will prefer the ones that it sizes is between 25% and 75% of the actual block.
+//and from all of those, we will prefer the left most (in preorder)
+if (((float)nNodes/4) <= subtrees[i].subtreeSize && subtrees[i].subtreeSize <= ((float)3*nNodes/4) && subtrees[i].preorder < leftmost) {
+leftmost = nodemin = subtrees[i].preorder;
+posmin = i;
+}
+}
+
+
+//border case, this means, that the last filter didn choose any candidate, so we will use another metric
+//and the new subtree is the one that minimize nNodes-2*subtreeSize.
+if (leftmost == MAX_UINT_16) {
+int16_t diff;
+nodemin = subtrees[0].preorder,
         min = nNodes - subtrees[0].subtreeSize - subtrees[0].subtreeSize,
         posmin = 0;
 
-        for (uint16_t i = 1; i < subtreeTop; ++i) {
-            diff = nNodes - 2*subtrees[i].subtreeSize;
-            if (diff < 0){
-                diff = -diff;
-            }
-       
-            if (diff < min) {
-                min = diff;
-                nodemin = subtrees[i].preorder;
-                posmin = i;
-            }
-        }
-    }
+for (uint16_t i = 1; i < subtreeTop; ++i) {
+diff = nNodes - 2*subtrees[i].subtreeSize;
+if (diff < 0){
+diff = -diff;
+}
+
+if (diff < min) {
+min = diff;
+nodemin = subtrees[i].preorder;
+posmin = i;
+}
+}
+}
 
 
-    //actualize the subTreesize and its depth
-    subTreeSize = subtrees[posmin].subtreeSize;
-    depthSelectN = depthVector[posmin];
+//actualize the subTreesize and its depth
+subTreeSize = subtrees[posmin].subtreeSize;
+depthSelectN = depthVector[posmin];
 
-    //return the tuple in function of nodemin
-    return treeNode(nodemin >> 2,nodemin & 0x3);
+//return the tuple in function of nodemin
+return treeNode(nodemin >> 2,nodemin & 0x3);
 }
 
 //dumyroot=tuple 0,0
@@ -279,9 +277,9 @@ void treeBlock::insert(treeNode node, uint8_t str[], uint64_t length, uint16_t l
         return;
 
 
-    /*if the length of str is 1 (this means that we only need to insert one node
-    we dont need to filter if the block has reached the max size, because int the next else if, we
-    ensure that, when inserting in a block, we dont reach maxSize-1 (to reach this else if)*/
+        /*if the length of str is 1 (this means that we only need to insert one node
+        we dont need to filter if the block has reached the max size, because int the next else if, we
+        ensure that, when inserting in a block, we dont reach maxSize-1 (to reach this else if)*/
     }else if (length == 1) {
         //we get the node codification
         uint8_t cNodeCod = (dfuds[node.first]>>shiftT[node.second]) & 0x000f;
@@ -294,7 +292,7 @@ void treeBlock::insert(treeNode node, uint8_t str[], uint64_t length, uint16_t l
         dfuds[node.first] = dfuds[node.first] | (insertT[cNodeCod][str[0]] << aux);
         return;
 
-    //there is room in current block for new nodes
+        //there is room in current block for new nodes
     }else if (nNodes + length - 1 <= maxNodes) {
 
         /*in this part we will modify de dfus array. inserting all tho new nodes in the middle
@@ -682,92 +680,92 @@ int8_t stack[100];
 //takes me to the position in dfuds, where is the child of the node with symbol (this function is a wrapper of skipChildrenSubtree but identificate when a child is in the block or in a child block)
 treeNode treeBlock::skipChildrenSubtree(treeNode &node, uint8_t symbol, uint16_t &curLevel,uint16_t maxLevel, uint16_t &curFlag){
 
-    //cant skip childs if you are at the max level
-    if (curLevel == maxLevel){
-        return node;
-    }
+//cant skip childs if you are at the max level
+if (curLevel == maxLevel){
+return node;
+}
 
-    //this give us the codification of the current node
-    uint8_t cNodeCod = (dfuds[node.first]>>shiftT[node.second]) & 0x000f;
-    //a table that computes the number of childs to skip in function of the codification and the symbol (0,1,2,3), see testChildSkipT in tests.c
-    uint8_t skipChild = (uint8_t) childSkipT[cNodeCod][symbol];
-    //number of childrens of the current node in function of the node codification
-    uint8_t nChildren = nChildrenT[cNodeCod];
+//this give us the codification of the current node
+uint8_t cNodeCod = (dfuds[node.first]>>shiftT[node.second]) & 0x000f;
+//a table that computes the number of childs to skip in function of the codification and the symbol (0,1,2,3), see testChildSkipT in tests.c
+uint8_t skipChild = (uint8_t) childSkipT[cNodeCod][symbol];
+//number of childrens of the current node in function of the node codification
+uint8_t nChildren = nChildrenT[cNodeCod];
 
-    //initialize the current node, and go to the next node
-    treeNode currNode = node;
-    nextNode(currNode);
-    uint16_t curPreorder = absolutePosition(currNode);
+//initialize the current node, and go to the next node
+treeNode currNode = node;
+nextNode(currNode);
+uint16_t curPreorder = absolutePosition(currNode);
 
-    //if there exist another frointeir node after me
-    if (ptr != NULL && curFlag < nPtrs && curPreorder > ((blockPtr *)ptr)[curFlag].flag){
-       ++curFlag;
-    }
-
-
-    //we want to instantiate the next fronteir node
-    uint16_t nextFlag;
-    //if there isnt a next flag, we mark it with a -1
-    if (nPtrs == 0 || curFlag >= nPtrs){
-        nextFlag = -1;
-    }else{
-        //else, the next flag is the at the curFlag position (remember that before we did ++curFlag
-        nextFlag = ((blockPtr *)ptr)[curFlag].flag;
-    }
-    //and increase a level, because we are going down in the tree
-    ++curLevel;
+//if there exist another frointeir node after me
+if (ptr != NULL && curFlag < nPtrs && curPreorder > ((blockPtr *)ptr)[curFlag].flag){
+++curFlag;
+}
 
 
-    //this two lines are like stack[0]=nChildrens
-    int16_t sTop = -1;
-    stack[++sTop] = nChildren;
-    //diference between the number of childrens and the skiped childrens
-    uint8_t diff = nChildren - skipChild;
+//we want to instantiate the next fronteir node
+uint16_t nextFlag;
+//if there isnt a next flag, we mark it with a -1
+if (nPtrs == 0 || curFlag >= nPtrs){
+nextFlag = -1;
+}else{
+//else, the next flag is the at the curFlag position (remember that before we did ++curFlag
+nextFlag = ((blockPtr *)ptr)[curFlag].flag;
+}
+//and increase a level, because we are going down in the tree
+++curLevel;
 
-    //we traverse the tree in preorder
-    while(curPreorder < nNodes && sTop >= 0 && diff < stack[0])  {
 
-        //we are at a fronteir node
-        if (curPreorder == nextFlag) {
-            //go to next flag
-            ++curFlag;
-            if (nPtrs == 0 || curFlag >= nPtrs){
-                nextFlag = -1;
-            }else{
-                nextFlag = ((blockPtr *)ptr)[curFlag].flag;
-            }
-            //we substrac 1 from the current top, because this node is checked and its childrens are in another block
-            --stack[sTop];
-        }else if (curLevel < maxLevel) {
-            //we are not in a fronteir node
-            //calculate the code of the next node, using its preorder number on dfuds
-            cNodeCod = (dfuds[curPreorder >> 2]>>shiftT[curPreorder & 0x3]) & 0x000f;
-            //at the number of childrens of the current node, to the stack
-            stack[++sTop] = nChildrenT[cNodeCod];
-            //go down in the tree
-            ++curLevel;
-        }else {
-            //todo: esto ocurre realmente?
-            --stack[sTop];
-        }
+//this two lines are like stack[0]=nChildrens
+int16_t sTop = -1;
+stack[++sTop] = nChildren;
+//diference between the number of childrens and the skiped childrens
+uint8_t diff = nChildren - skipChild;
 
-        //go to next node
-        ++curPreorder;
+//we traverse the tree in preorder
+while(curPreorder < nNodes && sTop >= 0 && diff < stack[0])  {
 
-        //this will set stop to thee previus node in preorder (is like going back)
-        while (sTop >= 0 && stack[sTop] == 0) {
-            --sTop;
-            --curLevel;
-            if (sTop >= 0){
-                --stack[sTop];
-            }
-        }
+//we are at a fronteir node
+if (curPreorder == nextFlag) {
+//go to next flag
+++curFlag;
+if (nPtrs == 0 || curFlag >= nPtrs){
+nextFlag = -1;
+}else{
+nextFlag = ((blockPtr *)ptr)[curFlag].flag;
+}
+//we substrac 1 from the current top, because this node is checked and its childrens are in another block
+--stack[sTop];
+}else if (curLevel < maxLevel) {
+//we are not in a fronteir node
+//calculate the code of the next node, using its preorder number on dfuds
+cNodeCod = (dfuds[curPreorder >> 2]>>shiftT[curPreorder & 0x3]) & 0x000f;
+//at the number of childrens of the current node, to the stack
+stack[++sTop] = nChildrenT[cNodeCod];
+//go down in the tree
+++curLevel;
+}else {
+//todo: esto ocurre realmente?
+--stack[sTop];
+}
 
-    }
+//go to next node
+++curPreorder;
 
-    currNode.first = curPreorder >> 2;
-    currNode.second = curPreorder & 0x3;
-    return currNode;
+//this will set stop to thee previus node in preorder (is like going back)
+while (sTop >= 0 && stack[sTop] == 0) {
+--sTop;
+--curLevel;
+if (sTop >= 0){
+--stack[sTop];
+}
+}
+
+}
+
+currNode.first = curPreorder >> 2;
+currNode.second = curPreorder & 0x3;
+return currNode;
 }
 
 
@@ -779,42 +777,42 @@ int changedBlock=false;
 int deleting=false;
 treeNode treeBlock::child(treeBlock *&p, treeNode & node, uint8_t symbol, uint16_t &curLevel, uint16_t maxLevel,uint16_t &curFlag){
 
-    //get codification of current node
-    uint8_t cNodeCod = (dfuds[node.first]>>shiftT[node.second]) & 0x000f;
-    //the rank of the node
-    uint8_t soughtChild = (uint8_t) childT[cNodeCod][symbol];
-    //if the rank is -1, it has now childrens in that position so we return a null node
-    if (soughtChild == (uint8_t)-1){
-        return NULL_NODE;
-    }
-    //if we are in a max level, we return the same node
-    //todo: pq lo anterior? esto pasa?
-    if (curLevel == maxLevel && soughtChild != (uint8_t)-1) {
-        return node;
-    }
+//get codification of current node
+uint8_t cNodeCod = (dfuds[node.first]>>shiftT[node.second]) & 0x000f;
+//the rank of the node
+uint8_t soughtChild = (uint8_t) childT[cNodeCod][symbol];
+//if the rank is -1, it has now childrens in that position so we return a null node
+if (soughtChild == (uint8_t)-1){
+return NULL_NODE;
+}
+//if we are in a max level, we return the same node
+//todo: pq lo anterior? esto pasa?
+if (curLevel == maxLevel && soughtChild != (uint8_t)-1) {
+return node;
+}
 
 
-    treeNode currNode;
-    //if we are a fronteir node
-    if (ptr != NULL && curFlag < nPtrs && absolutePosition(node) == ((blockPtr *)ptr)[curFlag].flag) {
-        if(deleting){
-            changedBlock=true;
-        }
-        //get the fronteir pointer
-        p = ((blockPtr *)ptr)[curFlag].P;
-        //set a dummy node to start searching in the next block
-        curFlag = 0;
-        treeNode auxNode;
-        auxNode.first = auxNode.second = 0;
+treeNode currNode;
+//if we are a fronteir node
+if (ptr != NULL && curFlag < nPtrs && absolutePosition(node) == ((blockPtr *)ptr)[curFlag].flag) {
+if(deleting){
+changedBlock=true;
+}
+//get the fronteir pointer
+p = ((blockPtr *)ptr)[curFlag].P;
+//set a dummy node to start searching in the next block
+curFlag = 0;
+treeNode auxNode;
+auxNode.first = auxNode.second = 0;
 
-        //we search the child in the block of the fronteir node
-        currNode = p->skipChildrenSubtree(auxNode, symbol, curLevel, maxLevel, curFlag);
-    }    
-    else{
-        //if we are not a fronteir node, we search the child in this block
-        currNode = skipChildrenSubtree(node, symbol, curLevel, maxLevel, curFlag);
-    }
-    return currNode;
+//we search the child in the block of the fronteir node
+currNode = p->skipChildrenSubtree(auxNode, symbol, curLevel, maxLevel, curFlag);
+}
+else{
+//if we are not a fronteir node, we search the child in this block
+currNode = skipChildrenSubtree(node, symbol, curLevel, maxLevel, curFlag);
+}
+return currNode;
 }
 
 
@@ -857,7 +855,7 @@ void insertar(treeBlock *root, uint8_t *str, uint64_t length, uint16_t level, ui
             curNode.second = 0;
         }
     }
-    
+
     /*
     the for cycle will stop at some i where the path does not exist
     so we have to inserts str[i..length-1] starting from the current node
@@ -940,8 +938,8 @@ bool isEdge(treeBlock *root, uint8_t *str, uint64_t length, uint16_t level, uint
             break;
         }
         else {
-          //if not, we continue
-          curNode = curNodeAux;
+            //if not, we continue
+            curNode = curNodeAux;
         }
 
         //if we are in a frontier node, we need to go down to the corresponding block
@@ -1013,8 +1011,8 @@ uint64_t sizeTrie(trieNode *t){
 
     //base case: if the pointer is null return 0
     if (!t) {
- 	    return 0;
- 	}
+        return 0;
+    }
 
     //if we use up to 8 levels of pointers. the pointers can implemented with 16 bits
     //todo: me tinca que podemos cambiar esta parte para que la funcion size venga de la estructura, y que no este harcodeada
@@ -1030,10 +1028,10 @@ uint64_t sizeTrie(trieNode *t){
         totalSize += sizeTrie(t->children[3]);
     }else{
         //if we are a treeBlock, we sum the size of the treeBlock
-  	    totalSize += ((treeBlock *)t->block)->size();
-  	}
+        totalSize += ((treeBlock *)t->block)->size();
+    }
     //return the total sum
-  	return totalSize;
+    return totalSize;
 }
 
 

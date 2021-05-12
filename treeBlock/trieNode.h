@@ -7,7 +7,23 @@
 struct trieNode{
     blockGlobalVars *bgv;
     void *block;
-    trieNode *children[4];
+    trieNode **children;
+
+    void init(blockGlobalVars* bgvv){
+        children = (trieNode **)malloc(4*sizeof(trieNode*));
+        children[0] = children[1] = children[2] = children[3] = NULL;
+        block = NULL;
+        bgv=bgvv;
+    }
+
+    void freeTrieNode();
 };
 
+
+
+
+void trieNode::freeTrieNode(){
+    free((trieNode *)children);
+    free(this);
+}
 #endif //K2DYNTRIESV2_TRIENODE_H

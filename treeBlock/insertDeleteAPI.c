@@ -1,7 +1,6 @@
 
 /*this function consume the string that represent the morton code, until the path it represent finished
 finally call a function that insert the new path in a block*/
-//todo: consideraria cambiarle el nombre a esta funcion, y a las demas inserts
 void insertar(treeBlock *root, uint8_t *str, uint64_t length, uint16_t level, uint16_t maxDepth){
 
     //curBlock is pointing to the root because we will start in that point. curBlockAux is a pointer we will use to decend the tree
@@ -62,11 +61,9 @@ void insertTrie(trieNode *t, uint8_t *str, uint64_t length, uint16_t maxDepth){
         //create a new trieNode
         t->children[str[i]] = (trieNode *)malloc(sizeof(trieNode));
         t = t->children[str[i]];
+        t->init(bgv);
         //go to next i
         i++;
-        t->children[0] = t->children[1] = t->children[2] = t->children[3] = NULL;
-        t->block = NULL;
-        t->bgv=bgv;
     }
 
 
@@ -138,9 +135,6 @@ bool isEdge(treeBlock *root, uint8_t *str, uint64_t length, uint16_t level, uint
     return length == i;
 }
 
-
-
-//todo: consideraria cambiarle el nombre
 //return true if the path represented with the str, is in the trie (and in the tree)
 bool isEdgeTrie(trieNode *t, uint8_t *str, uint64_t length, uint16_t maxDepth) {
 
@@ -171,7 +165,6 @@ uint64_t sizeTrie(trieNode *t){
     }
 
     //if we use up to 8 levels of pointers. the pointers can implemented with 16 bits
-    //todo: me tinca que podemos cambiar esta parte para que la funcion size venga de la estructura, y que no este harcodeada
     //this is the size of the actual trie
     uint64_t totalSize = 4*sizeof(uint16_t);
 
@@ -467,7 +460,8 @@ void unionBlocks(treeBlock * father, treeBlock * son,uint16_t flag,uint16_t flag
             ((blockPtr *)father->ptr)[flagIndex+k].flag+=flag;
         }
 
-        son->freeTreeBlock2();
+        //we free son dfuds, but not the frointier, because the father will use it
+        son->freeTreeBlockButKeepFrontier();
     }else{
         //if son has no frontier, we should delete flagIndex pointer and realloc
 
@@ -485,8 +479,6 @@ void unionBlocks(treeBlock * father, treeBlock * son,uint16_t flag,uint16_t flag
 
         son->freeTreeBlock();
     }
-
-    //todo:delete leftovers
 
 }
 
@@ -760,7 +752,6 @@ bool deleteBlockNodes2(treeBlock *root, uint8_t str[], uint64_t length, uint16_t
                 deleteZeros(actualBlock->dfuds,actualBlock->maxNodes/4);
                 actualBlock->shrink2();
                 if(i>0 && (actualBlock->nNodes+((treeBlock*)root->bgv->delBlockStack[i-1])->nNodes)<=beta){
-                    //todo: aqui llamar a la funcion que une bloques
                     unionBlocks((treeBlock*)root->bgv->delBlockStack[i-1],actualBlock, ((blockPtr*) ((treeBlock*)root->bgv->delBlockStack[i-1])->ptr)[root->bgv->flagPathBlockStack[i-1]].flag , root->bgv->flagPathBlockStack[i-1]);
                     i--;
                 }
@@ -840,7 +831,6 @@ void deleteTrie(trieNode *t, uint8_t *str, uint64_t length, uint16_t maxDepth){
 
         //the last trieNode has null childs but not null block, so if continueDelete is true, that means that the block is now null
         treeBlock *paux=(treeBlock *) taux->block;
-        //todo: keeptrak of free
         paux->freeTreeBlock();
         taux->block=NULL;
 
@@ -848,13 +838,14 @@ void deleteTrie(trieNode *t, uint8_t *str, uint64_t length, uint16_t maxDepth){
         t->bgv->delTrieNodeIndex--;
         taux=(trieNode*)t->bgv->delTrieNodeStack[t->bgv->delTrieNodeIndex];
         //delete all the trieNodes of the stack till the path fork
-        while(t->bgv->delTrieNodeIndex>=0){
-            //todo:quizas hay que hacer un free para esa estructura tambien
+        while(t->bgv->delTrieNodeIndex>0){
             taux->children[t->bgv->delPathStack[t->bgv->delTrieNodeIndex]]=NULL;
             //this tell us if the path is not forked
             if( taux->children[0]==NULL && taux->children[1]==NULL && taux->children[2]==NULL && taux->children[3]==NULL ){
                 t->bgv->delTrieNodeIndex--;
+                taux->freeTrieNode();
                 taux=(trieNode*)t->bgv->delTrieNodeStack[t->bgv->delTrieNodeIndex];
+                taux->children[t->bgv->delPathStack[t->bgv->delTrieNodeIndex]]=NULL;
             }else{
                 //the path is forked, so we stop
                 t->bgv->delTrieNodeIndex=0;
@@ -862,8 +853,6 @@ void deleteTrie(trieNode *t, uint8_t *str, uint64_t length, uint16_t maxDepth){
             }
         }
 
-        //todo: falta implementar un free
-        //todo: si implementqamos un free para trieNode, faltaria poner un free aca para t->bgv->delTrieNodeStack[0]
         t->bgv->delTrieNodeIndex=0;
         return;
 
@@ -925,7 +914,6 @@ void deleteTrie2(trieNode *t, uint8_t *str, uint64_t length, uint16_t maxDepth){
 
         //the last trieNode has null childs but not null block, so if continueDelete is true, that means that the block is now null
         treeBlock *paux=(treeBlock *) taux->block;
-        //todo: keeptrak of free
         paux->freeTreeBlock();
         taux->block=NULL;
 
@@ -934,13 +922,14 @@ void deleteTrie2(trieNode *t, uint8_t *str, uint64_t length, uint16_t maxDepth){
         taux=(trieNode*)t->bgv->delTrieNodeStack[t->bgv->delTrieNodeIndex];
 
         //delete all the trieNodes of the stack till the path fork
-        while(t->bgv->delTrieNodeIndex>=0){
-            //todo:quizas hay que hacer un free para esa estructura tambien
+        while(t->bgv->delTrieNodeIndex>0){
             taux->children[t->bgv->delPathStack[t->bgv->delTrieNodeIndex]]=NULL;
             //this tell us if the path is not forked
             if( taux->children[0]==NULL && taux->children[1]==NULL && taux->children[2]==NULL && taux->children[3]==NULL ){
                 t->bgv->delTrieNodeIndex--;
+                taux->freeTrieNode();
                 taux=(trieNode*)t->bgv->delTrieNodeStack[t->bgv->delTrieNodeIndex];
+                taux->children[t->bgv->delPathStack[t->bgv->delTrieNodeIndex]]=NULL;
             }else{
                 //the path is forked, so we stop
                 t->bgv->delTrieNodeIndex=0;
@@ -948,9 +937,6 @@ void deleteTrie2(trieNode *t, uint8_t *str, uint64_t length, uint16_t maxDepth){
             }
 
         }
-
-        //todo: falta implementar un free
-        //todo: si implementqamos un free para trieNode, faltaria poner un free aca para delTrieNodeStack[0]
         t->bgv->delTrieNodeIndex=0;
         return;
 

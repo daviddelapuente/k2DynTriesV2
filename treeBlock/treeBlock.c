@@ -2,7 +2,7 @@
 This is a recursive function. first we free the dfuds.
 and then recursively we free the children blocks, finally
 we free the array with the children pointers and this*/
-//todo: la primera capa trieNode tambien deberia tener una funcion que borre para llamar a es??? como testear??
+
 void treeBlock::freeTreeBlock(){
     free((void *)dfuds);
     for (uint16_t i = 0; i < nPtrs; ++i){
@@ -12,7 +12,7 @@ void treeBlock::freeTreeBlock(){
     free(this);
 }
 
-void treeBlock::freeTreeBlock2(){
+void treeBlock::freeTreeBlockButKeepFrontier(){
     free((void *)dfuds);
     free((void*)ptr);
     free(this);
@@ -99,7 +99,7 @@ treeNode treeBlock::selectSubtree2(uint16_t maxDepth, uint16_t & subTreeSize, ui
 
         //now we fill the subtrees info
         //this ssTop~i so this is O(n^2)
-        //todo: necesito mas orientacion de como se hace esto :(
+
         while (ssTop > 0 && bgv->stackSS[ssTop-1].nChildren == 0) {
             bgv->subtrees[subtreeTop].preorder = bgv->stackSS[ssTop-1].preorder;
             bgv->subtrees[subtreeTop++].subtreeSize = i-bgv->stackSS[ssTop-1].preorder+1;
@@ -159,7 +159,7 @@ treeNode treeBlock::selectSubtree2(uint16_t maxDepth, uint16_t & subTreeSize, ui
 
 void treeBlock::insert(treeNode node, uint8_t str[], uint64_t length, uint16_t level,uint64_t maxDepth, uint16_t curFlag){
 
-    //todo: talvez podemos sacarlo de aqui y ponerlo en los ifs que si aparece?
+
     treeNode nodeAux = node;
 
     //first we determine the max size of the blocks depending on the deepth
@@ -182,7 +182,6 @@ void treeBlock::insert(treeNode node, uint8_t str[], uint64_t length, uint16_t l
         //get the codification of the node we want to insert
         uint8_t cNodeCod = (dfuds[node.first]>>shiftT[node.second]) & 0x000f;
 
-        //todo:porque un register?
         /*the idea of aux is to shiftleft a 16bit to mask our node.
         for example if we have xxxx xxxx 1101 xxxx, node.second is = 2 (the x means that value is a 0 or 1, we only mind about node.second)
         so if we have the 16bit mask = 0xF = 0000 0000 0000 1111, we will want to shift it 4 times to left
@@ -323,9 +322,6 @@ void treeBlock::insert(treeNode node, uint8_t str[], uint64_t length, uint16_t l
 
             //this part will consist in spliting the node in a child block
 
-
-
-            //todo:revisar si lo que dije aca es cierto
             //calculate the subtree (the node were beging the subtree is stored in originalSelectedNode and selectedNode. And the end of the subtree is stored in subTreeSize)
             treeNode selectedNode, originalSelectedNode;
             uint16_t subTreeSize, depthSelectedNode;
@@ -352,7 +348,6 @@ void treeBlock::insert(treeNode node, uint8_t str[], uint64_t length, uint16_t l
             blockPtr *new_ptr;
             if (nPtrs > 0) {
                 //first we make with equal size than blockPtr (then we will adjust this)
-                //todo: ver si lo que dije aqui arriba es cieto
                 new_ptr = (blockPtr *)malloc(sizeof(blockPtr)*nPtrs);
             }else {
                 new_ptr = NULL;
@@ -400,7 +395,6 @@ void treeBlock::insert(treeNode node, uint8_t str[], uint64_t length, uint16_t l
                 }
 
                 //we are copying a frontier node
-                //todo: que hay en ptr[flag].flag?
                 if (ptr!=NULL && flag < nPtrs && preorderSelectedNode == ((blockPtr *)ptr)[flag].flag) {
                     //copy the pointer for the new block
                     new_ptr[auxFlag].P = ((blockPtr *)ptr)[flag].P;
@@ -421,7 +415,6 @@ void treeBlock::insert(treeNode node, uint8_t str[], uint64_t length, uint16_t l
                 //use the destNode to index the new_dfuds and copy the node that is indexed by selectedNode in dfuds
                 new_dfuds[destNode.first] = new_dfuds[destNode.first] | (((dfuds[selectedNode.first] >> aux) & 0x000F) << 4*(3-destNode.second));
 
-                //todo: me tinca que esto borra los nodos qe estan en dfuds, que estan en el subtree. pero hay que verlo con calma
                 if (selectedNode != originalSelectedNode){
                     dfuds[selectedNode.first] =  dfuds[selectedNode.first] & ~(0xF << aux);
                 }
@@ -440,14 +433,12 @@ void treeBlock::insert(treeNode node, uint8_t str[], uint64_t length, uint16_t l
 
             /* we want to know if the insertion will be before the selected subtree. [before,subtree,after]
              at first we will asume that the insertion will be before*/
-            //todo: me imagino qe es before U subtree
             bool insertionBeforeSelectedTree = true;
 
 
             /*if insertionInNewBlock is false that means that the insertion is in before or in after [before,       ,after]
             in the other hand. we know that flag lives in subtree [before, flag  ,after], if flag <=curFlag, but insertion isnt in new block
             that means that curFlag must be in after*/
-            //todo:que es curFlag? me imagino que es como un indice qe lleva la cuenta de en qe frontera estamos
             if (!insertionInNewBlock && flag <= curFlag){
                 //the insertion point is after the selected subtree
                 insertionBeforeSelectedTree = false;
@@ -456,7 +447,7 @@ void treeBlock::insert(treeNode node, uint8_t str[], uint64_t length, uint16_t l
             //now we instantiate the new block
             treeBlock *new_block = (treeBlock *)malloc(sizeof(treeBlock));
             new_block->nNodes = subTreeSize;
-            //todo: estaba este comentario: OJO con este valor, definir bien
+
             new_block->maxNodes = bgv->sizeArray[subTreeSize];
             new_block->dfuds = new_dfuds;
             new_block->rootDepth = depthSelectedNode;
@@ -499,7 +490,6 @@ void treeBlock::insert(treeNode node, uint8_t str[], uint64_t length, uint16_t l
                 new_block->nPtrs = auxFlag;
 
                 //add the new child block to the current block ptr array
-                //todo: ver si borramos los demas nodos de ptr
                 ((blockPtr *)ptr)[flagSelectedNode].flag = absolutePosition(originalSelectedNode);
                 ((blockPtr *)ptr)[flagSelectedNode].P = new_block;
 
@@ -555,7 +545,6 @@ void treeBlock::insert(treeNode node, uint8_t str[], uint64_t length, uint16_t l
 
 
             //now we shrink the actual block. considering the number of nodes we remove (subTreeSize)
-            //todo: -length?
             if (subTreeSize > length) {
                 shrink(subTreeSize - 1 - length + 1);
             }else {
@@ -700,7 +689,6 @@ treeNode treeBlock::child(treeBlock *&p, treeNode & node, uint8_t symbol, uint16
         return bgv->NULL_NODE;
     }
     //if we are in a max level, we return the same node
-    //todo: pq lo anterior? esto pasa?
     if (curLevel == maxLevel && soughtChild != (uint8_t)-1) {
         return node;
     }
@@ -736,7 +724,6 @@ uint64_t treeBlock::size(){
 
     //for each fronteir node, calculate each size
     for(uint16_t i = 0; i < nPtrs; ++i) {
-        //todo: cambiar el nombre de ptr a algo mas relacionado con la frontera
         totalSize += ((blockPtr *) ptr)[i].P->size();
     }
     //return the total size

@@ -21,7 +21,6 @@ struct trieNode{
 
 
 
-
 void trieNode::freeTrieNode(){
     free((trieNode *)children);
     free(this);

@@ -949,3 +949,160 @@ void deleteTrie2(trieNode *t, uint8_t *str, uint64_t length, uint16_t maxDepth){
     return;
 
 }
+
+
+
+
+//,int rleft,int rright,int cleft,int cright,treeNode curNode,uint16_t curFlag)
+linkedList* getNeighboursBlock(treeBlock *root, int nodeid, uint64_t length, uint16_t level, uint16_t maxDepth,int rleft,int rright,int cleft,int cright,treeNode curNode,uint16_t curFlag) {
+
+
+
+
+
+    treeBlock *curBlock = root;
+
+    int rmid=(rleft+rright)/2;
+    if(rmid==nodeid){
+        if(rleft!=rright){
+
+            treeNode leftcurNodeAux;
+            uint16_t leftCurFlag=curFlag;
+            uint16_t leftLevel=level;
+
+            leftcurNodeAux = curBlock->child(curBlock, curNode,0, leftLevel, maxDepth, leftCurFlag);
+            linkedList*leftPart;
+            if (leftcurNodeAux.first == (NODE_TYPE)-1){
+                leftPart= NULL;
+            }else {
+                curNode = leftcurNodeAux;
+
+                if (curBlock->nPtrs > 0 && absolutePosition(curNode) == leftCurFlag) {
+                    curBlock = curBlock->getPointer(leftCurFlag);
+                    curNode.first = 0;
+                    curNode.second = 0;
+                }
+
+                linkedList*l=createLinkedList(cleft);
+                leftPart = l;
+            }
+
+            treeNode rightcurNodeAux;
+            uint16_t rightCurFlag=curFlag;
+            uint16_t rightLevel=level;
+
+            rightcurNodeAux = curBlock->child(curBlock, curNode,1, rightLevel, maxDepth, rightCurFlag);
+            linkedList*rightPart;
+            if (rightcurNodeAux.first == (NODE_TYPE)-1){
+                rightPart= NULL;
+            }else {
+                curNode = rightcurNodeAux;
+
+                if (curBlock->nPtrs > 0 && absolutePosition(curNode) == rightCurFlag) {
+                    curBlock = curBlock->getPointer(rightCurFlag);
+                    curNode.first = 0;
+                    curNode.second = 0;
+                }
+
+                linkedList*l=createLinkedList(cright);
+                rightPart= l;
+            }
+            return concatenateLinkedList(leftPart,rightPart);
+
+
+        }else{
+            printf("checkthis\n");
+            return NULL;
+        }
+
+    }else if (nodeid<rmid){
+
+        treeNode leftcurNodeAux;
+        uint16_t leftCurFlag=curFlag;
+        uint16_t leftLevel=level;
+
+        leftcurNodeAux = curBlock->child(curBlock, curNode,0, leftLevel, maxDepth, leftCurFlag);
+
+        linkedList*leftPart;
+        if (leftcurNodeAux.first == (NODE_TYPE)-1){
+            leftPart=NULL;
+        }else {
+            curNode = leftcurNodeAux;
+
+            if (curBlock->nPtrs > 0 && absolutePosition(curNode) == leftCurFlag) {
+                curBlock = curBlock->getPointer(leftCurFlag);
+                curNode.first = 0;
+                curNode.second = 0;
+            }
+
+            int cmid=(cleft+cright)/2;
+            leftPart= getNeighboursBlock(curBlock,nodeid,length-1,leftLevel,maxDepth,rleft,rmid,cleft,cmid,curNode,leftCurFlag);
+        }
+
+
+        treeNode rightcurNodeAux;
+        uint16_t rightCurFlag=curFlag;
+        uint16_t rightLevel=level;
+
+        rightcurNodeAux = curBlock->child(curBlock, curNode,1, rightLevel, maxDepth, rightCurFlag);
+
+        linkedList*rightPart;
+        if (rightcurNodeAux.first == (NODE_TYPE)-1){
+            rightPart=NULL;
+        }else {
+            curNode = rightcurNodeAux;
+
+            if (curBlock->nPtrs > 0 && absolutePosition(curNode) == rightCurFlag) {
+                curBlock = curBlock->getPointer(rightCurFlag);
+                curNode.first = 0;
+                curNode.second = 0;
+            }
+
+            int cmid=(cleft+cright)/2;
+            rightPart = getNeighboursBlock(curBlock,nodeid,length-1,rightLevel,maxDepth,rleft,rmid,cmid+1,cright,curNode,rightCurFlag);
+        }
+        return concatenateLinkedList(leftPart,rightPart);
+
+
+
+    }else{
+
+
+
+
+        return NULL;
+
+        //int cmid=(cleft+cright)/2;
+        //return concatenateLinkedList( getNeighboursTrie(t->children[0],nodeid,length,maxDepth,rleft,rmid,cleft,cmid) , getNeighboursTrie(t->children[1],nodeid,length,maxDepth,rleft,rmid,cmid+1,cright) );
+    }
+    return NULL;
+
+
+}
+
+
+//neighbours api: the idea is to retrieve the neighbours of a node x
+//the neighbours will be a linked list with all the nodes in the graph that has a 1 in the row x
+//that means all the G[x][i]=1
+linkedList* getNeighboursTrie(trieNode *t, int nodeid, uint64_t length,uint64_t level ,uint16_t maxDepth,int rleft,int rright, int cleft,int cright) {
+    if (t==NULL){
+        return NULL;
+    }else if(t->children[0]==NULL && t->children[1]==NULL && t->block==NULL){
+        return NULL;
+    }else if(t->children[0]==NULL && t->children[1]==NULL && t->block!=NULL){
+        treeNode curNode(0,0);
+        int16_t curFlag=0;
+        //printDfuds(((treeBlock*)t->block)->dfuds,((treeBlock*)t->block)->maxNodes/4);
+        return getNeighboursBlock((treeBlock*)t->block, nodeid, length, level, maxDepth,rleft,rright,cleft,cright,curNode,curFlag);
+    }else{
+        int rmid=(rleft+rright)/2;
+        if (nodeid>rmid){
+            int cmid=(cleft+cright)/2;
+            return concatenateLinkedList( getNeighboursTrie(t->children[2],nodeid,length-1,level+1,maxDepth,rmid+1,rright,cleft,cmid) , getNeighboursTrie(t->children[3],nodeid,length-1,level+1,maxDepth,rmid+1,rright,cmid+1,cright) );
+        }else{
+            int cmid=(cleft+cright)/2;
+            return concatenateLinkedList( getNeighboursTrie(t->children[0],nodeid,length-1,level+1,maxDepth,rleft,rmid,cleft,cmid) , getNeighboursTrie(t->children[1],nodeid,length-1,level+1,maxDepth,rleft,rmid,cmid+1,cright) );
+        }
+    }
+}
+

@@ -1,8 +1,6 @@
 #include "assert.h"
-#include "../treeBlock/treeBlockApi.h"
+#include "../../../treeBlock/treeBlockApi.h"
 
-/* En este test, primero insertamos 194M de aristas. luego borramos el arbol completo, pero medimos cada 5M de aristas
- * Es decir, calculamos cuanto se demora en borrar los primeros 5M, los primeros 10M,... el arbol completo*/
 
 int a(uint8_t path[],int pathLength){
     int ri=0;
@@ -57,8 +55,12 @@ int * ab(uint8_t path[],int pathLength){
     return node;
 }
 
-int main()
-{
+int main(){
+
+    //scan int code
+    int scanCode;
+
+
 
     blockGlobalVars *bgv=(blockGlobalVars*) malloc(sizeof(blockGlobalVars));
     bgv->init(4,S3,0.99);
@@ -68,64 +70,86 @@ int main()
     t->init(bgv);
 
 
+    FILE *fpnEdges;
+    FILE *fpinsert;
 
-    //scan int code
-    int scanCode;
+    fpnEdges=fopen("./results/nEdges.txt", "w");
+    fpinsert=fopen("./results/insert.txt", "w");
 
+    if (fpnEdges == NULL ||fpinsert==NULL){
+        printf("Error opening file!\n");
+        exit(1);
+    }
     /*int this part we insert the nodes in the trie
     n=rows, n1=cols, nEdges=number of edges*/
     uint64_t n, n1, nEdges;
     //this variable will contain the string in the morton code of a edge (max of the string is 50, that means 2^50 nodes)
     uint8_t str[50];
     //init a clock
-    clock_t start,start2, diff=0,diff2=0;
+    clock_t start, diff=0;
     //we read the first line of the input (wich contains the number of: rows,cols,edges)
     scanCode=scanf("%lu %lu %lu\n", &n, &n1, &nEdges);
-    uint64_t i = 0;
-    while(i<50000000){
+
+    int * node;
+    int neigNode;
+    bool neigNodeDesigned=false;
+
+    for (uint64_t i = 0; i < 190000001; ++i) {
         //we read the line containing the edge
         scanCode=scanf("%s\n", str);
         //todo: podemos cambiar el 23 por length thel string en el futuro.
         //for each char of the string, we need to convert it to int.
         //todo: podemos usar atoi y ahorrarnos el switch
-
-
         for (uint8_t j = 0; j < 23; ++j)
             switch(str[j]) {
                 case '0': str[j] = 0;
-
                     break;
                 case '1': str[j] = 1;
-
                     break;
                 case '2': str[j] = 2;
-
                     break;
                 case '3': str[j] = 3;
-
                     break;
             }
 
-        //for each edge, we sum the time it cost to insert
-
-
         insertTrie(t, str, 23, 22);
 
-        i++;
 
-        if(i==50000000){
-            int * node;
-            node = ab(str,23);
-            printf("%i %i\n",node[0],node[1]);
-            printf("neighbours\n");
-            int pathLength=23;
-            int left=0;
-            int right=pow(2,pathLength)-1;
-            linkedList* answer=getNeighboursTrie(t,node[0],23,0,22,left,right,left,right);
-            printLinkedList2(answer);
+        if (i%5000000 == 0 && i!=0) {
+
+            diff=0;
+            printf(" nEdges=%lu\n",i);
+            fprintf(fpnEdges,"%lu,\n",i);
+
+            if(!neigNodeDesigned){
+                node=ab(str,23);
+                neigNodeDesigned=true;
+                neigNode=node[0];
+            }
+
+            printf("%lu\n",i);
+
+
+            for(int i2=0;i2<10000;i2++){
+                int pathLength=23;
+                int left=0;
+                int right=pow(2,pathLength)-1;
+                start = clock();
+                linkedList* answer=getNeighboursTrie(t,neigNode,23,0,22,left,right,left,right);
+                diff += clock() - start;
+                //printLinkedList(answer);
+            }
+
+            uint64_t msec = diff * 1000 / CLOCKS_PER_SEC;
+            printf("     insertTime=%f\n",(float)msec);
+            fprintf(fpinsert,"%f,\n",(float)msec);
         }
-
     }
+
+
+
+    fclose(fpnEdges);
+    fclose(fpinsert);
 
     printf("congratulation all test passed\n");
     return 0;

@@ -20,6 +20,14 @@ void printLinkedList(linkedList* head){
     printf("NULL\n");
 }
 
+void printLinkedList2(linkedList* head){
+    while(head!=NULL){
+        printf("%i ",head->data);
+        head=head->next;
+    }
+    printf("NULL\n");
+}
+
 linkedList* concatenateLinkedList(linkedList* l1,linkedList* l2){
     if (l1==NULL && l2==NULL){
         return NULL;

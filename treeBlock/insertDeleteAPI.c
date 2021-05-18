@@ -959,12 +959,13 @@ linkedList* getNeighboursBlock(treeBlock *root, int nodeid, uint64_t length, uin
 
 
 
-
+    //printf("%i\n",level);
     treeBlock *curBlock = root;
 
     int rmid=(rleft+rright)/2;
-    if(rmid==nodeid){
-        if(rleft!=rright){
+    if(rmid==nodeid && rleft==rright){
+        /*if(rleft!=rright){
+            printf("%i %i \n",rleft,rright);
 
             treeNode leftcurNodeAux;
             uint16_t leftCurFlag=curFlag;
@@ -1012,69 +1013,116 @@ linkedList* getNeighboursBlock(treeBlock *root, int nodeid, uint64_t length, uin
 
         }else{
             printf("checkthis\n");
-            return NULL;
-        }
+            linkedList*l=createLinkedList(cright);
+            return l;
+        }*/
+        linkedList*l=createLinkedList(cright);
+        return l;
+    }else if (nodeid<=rmid){
 
-    }else if (nodeid<rmid){
-
+        treeNode leftAuxNode=curNode;
+        treeBlock * leftBlockAux=curBlock;
         treeNode leftcurNodeAux;
         uint16_t leftCurFlag=curFlag;
         uint16_t leftLevel=level;
 
-        leftcurNodeAux = curBlock->child(curBlock, curNode,0, leftLevel, maxDepth, leftCurFlag);
+        leftcurNodeAux = leftBlockAux->child(leftBlockAux, leftAuxNode,0, leftLevel, maxDepth, leftCurFlag);
 
         linkedList*leftPart;
         if (leftcurNodeAux.first == (NODE_TYPE)-1){
             leftPart=NULL;
         }else {
-            curNode = leftcurNodeAux;
+            leftAuxNode = leftcurNodeAux;
 
-            if (curBlock->nPtrs > 0 && absolutePosition(curNode) == leftCurFlag) {
-                curBlock = curBlock->getPointer(leftCurFlag);
-                curNode.first = 0;
-                curNode.second = 0;
+            if (leftBlockAux->nPtrs > 0 && absolutePosition(leftAuxNode) == leftCurFlag) {
+                leftBlockAux = leftBlockAux->getPointer(leftCurFlag);
+                leftAuxNode.first = 0;
+                leftAuxNode.second = 0;
             }
 
             int cmid=(cleft+cright)/2;
-            leftPart= getNeighboursBlock(curBlock,nodeid,length-1,leftLevel,maxDepth,rleft,rmid,cleft,cmid,curNode,leftCurFlag);
+            leftPart= getNeighboursBlock(leftBlockAux,nodeid,length-1,leftLevel,maxDepth,rleft,rmid,cleft,cmid,leftAuxNode,leftCurFlag);
         }
 
-
+        treeBlock * rightBlockAux=curBlock;
+        treeNode rightAuxNode=curNode;
         treeNode rightcurNodeAux;
         uint16_t rightCurFlag=curFlag;
         uint16_t rightLevel=level;
 
-        rightcurNodeAux = curBlock->child(curBlock, curNode,1, rightLevel, maxDepth, rightCurFlag);
+        rightcurNodeAux = rightBlockAux->child(rightBlockAux, rightAuxNode,1, rightLevel, maxDepth, rightCurFlag);
 
         linkedList*rightPart;
         if (rightcurNodeAux.first == (NODE_TYPE)-1){
             rightPart=NULL;
         }else {
-            curNode = rightcurNodeAux;
 
-            if (curBlock->nPtrs > 0 && absolutePosition(curNode) == rightCurFlag) {
-                curBlock = curBlock->getPointer(rightCurFlag);
-                curNode.first = 0;
-                curNode.second = 0;
+            rightAuxNode = rightcurNodeAux;
+            if (rightBlockAux->nPtrs > 0 && absolutePosition(rightAuxNode) == rightCurFlag) {
+                rightBlockAux = rightBlockAux->getPointer(rightCurFlag);
+                rightAuxNode.first = 0;
+                rightAuxNode.second = 0;
             }
 
             int cmid=(cleft+cright)/2;
-            rightPart = getNeighboursBlock(curBlock,nodeid,length-1,rightLevel,maxDepth,rleft,rmid,cmid+1,cright,curNode,rightCurFlag);
+            rightPart = getNeighboursBlock(rightBlockAux,nodeid,length-1,rightLevel,maxDepth,rleft,rmid,cmid+1,cright,rightAuxNode,rightCurFlag);
         }
         return concatenateLinkedList(leftPart,rightPart);
 
 
 
     }else{
+        treeNode leftAuxNode=curNode;
+        treeBlock * leftBlockAux=curBlock;
+        treeNode leftcurNodeAux;
+        uint16_t leftCurFlag=curFlag;
+        uint16_t leftLevel=level;
+
+        leftcurNodeAux = leftBlockAux->child(leftBlockAux, leftAuxNode,2, leftLevel, maxDepth, leftCurFlag);
+
+        linkedList*leftPart;
+        if (leftcurNodeAux.first == (NODE_TYPE)-1){
+            leftPart=NULL;
+        }else {
+            leftAuxNode = leftcurNodeAux;
+
+            if (leftBlockAux->nPtrs > 0 && absolutePosition(leftAuxNode) == leftCurFlag) {
+                leftBlockAux = leftBlockAux->getPointer(leftCurFlag);
+                leftAuxNode.first = 0;
+                leftAuxNode.second = 0;
+            }
+
+            int cmid=(cleft+cright)/2;
+            leftPart= getNeighboursBlock(leftBlockAux,nodeid,length-1,leftLevel,maxDepth,rmid+1,rright,cleft,cmid,leftAuxNode,leftCurFlag);
+        }
 
 
+        treeBlock * rightBlockAux=curBlock;
+        treeNode rightAuxNode=curNode;
+        treeNode rightcurNodeAux;
+        uint16_t rightCurFlag=curFlag;
+        uint16_t rightLevel=level;
 
+        rightcurNodeAux = rightBlockAux->child(rightBlockAux, rightAuxNode,3, rightLevel, maxDepth, rightCurFlag);
 
-        return NULL;
+        linkedList*rightPart;
+        if (rightcurNodeAux.first == (NODE_TYPE)-1){
+            rightPart=NULL;
+        }else {
+            rightAuxNode = rightcurNodeAux;
 
-        //int cmid=(cleft+cright)/2;
-        //return concatenateLinkedList( getNeighboursTrie(t->children[0],nodeid,length,maxDepth,rleft,rmid,cleft,cmid) , getNeighboursTrie(t->children[1],nodeid,length,maxDepth,rleft,rmid,cmid+1,cright) );
+            if (rightBlockAux->nPtrs > 0 && absolutePosition(rightAuxNode) == rightCurFlag) {
+                rightBlockAux = rightBlockAux->getPointer(rightCurFlag);
+                rightAuxNode.first = 0;
+                rightAuxNode.second = 0;
+            }
+
+            int cmid=(cleft+cright)/2;
+            rightPart = getNeighboursBlock(rightBlockAux,nodeid,length-1,rightLevel,maxDepth,rmid+1,rright,cmid+1,cright,rightAuxNode,rightCurFlag);
+        }
+        return concatenateLinkedList(leftPart,rightPart);
     }
+
     return NULL;
 
 

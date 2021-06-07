@@ -128,9 +128,9 @@ int main(){
             }
 
             printf("%lu\n",i);
+            printf("%i\n",neigNode);
 
-
-            for(int i2=0;i2<10000;i2++){
+            for(int i2=0;i2<1;i2++){
                 int pathLength=23;
                 int left=0;
                 int right=pow(2,pathLength)-1;
@@ -138,9 +138,13 @@ int main(){
                 linkedList* answer=getNeighboursTrie(t,neigNode,23,0,22,left,right,left,right);
                 diff += clock() - start;
                 //printLinkedList(answer);
+
+                freeLinkedList(answer);
+
+
             }
 
-            uint64_t msec = diff * 1000 / CLOCKS_PER_SEC;
+            uint64_t msec = diff * 1000 ;
             printf("     insertTime=%f\n",(float)msec);
             fprintf(fpinsert,"%f,\n",(float)msec);
         }

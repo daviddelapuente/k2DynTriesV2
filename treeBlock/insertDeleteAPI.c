@@ -964,58 +964,6 @@ linkedList* getNeighboursBlock(treeBlock *root, int nodeid, uint64_t length, uin
 
     int rmid=(rleft+rright)/2;
     if(rmid==nodeid && rleft==rright){
-        /*if(rleft!=rright){
-            printf("%i %i \n",rleft,rright);
-
-            treeNode leftcurNodeAux;
-            uint16_t leftCurFlag=curFlag;
-            uint16_t leftLevel=level;
-
-            leftcurNodeAux = curBlock->child(curBlock, curNode,0, leftLevel, maxDepth, leftCurFlag);
-            linkedList*leftPart;
-            if (leftcurNodeAux.first == (NODE_TYPE)-1){
-                leftPart= NULL;
-            }else {
-                curNode = leftcurNodeAux;
-
-                if (curBlock->nPtrs > 0 && absolutePosition(curNode) == leftCurFlag) {
-                    curBlock = curBlock->getPointer(leftCurFlag);
-                    curNode.first = 0;
-                    curNode.second = 0;
-                }
-
-                linkedList*l=createLinkedList(cleft);
-                leftPart = l;
-            }
-
-            treeNode rightcurNodeAux;
-            uint16_t rightCurFlag=curFlag;
-            uint16_t rightLevel=level;
-
-            rightcurNodeAux = curBlock->child(curBlock, curNode,1, rightLevel, maxDepth, rightCurFlag);
-            linkedList*rightPart;
-            if (rightcurNodeAux.first == (NODE_TYPE)-1){
-                rightPart= NULL;
-            }else {
-                curNode = rightcurNodeAux;
-
-                if (curBlock->nPtrs > 0 && absolutePosition(curNode) == rightCurFlag) {
-                    curBlock = curBlock->getPointer(rightCurFlag);
-                    curNode.first = 0;
-                    curNode.second = 0;
-                }
-
-                linkedList*l=createLinkedList(cright);
-                rightPart= l;
-            }
-            return concatenateLinkedList(leftPart,rightPart);
-
-
-        }else{
-            printf("checkthis\n");
-            linkedList*l=createLinkedList(cright);
-            return l;
-        }*/
         linkedList*l=createLinkedList(cright);
         return l;
     }else if (nodeid<=rmid){

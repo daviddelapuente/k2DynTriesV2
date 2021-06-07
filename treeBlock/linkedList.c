@@ -12,6 +12,18 @@ linkedList * createLinkedList(int data){
     return l;
 }
 
+
+void freeLinkedList(linkedList *head){
+    if (head==NULL){
+        return;
+    }else {
+        linkedList*aux=head;
+        head=head->next;
+        free(aux);
+        freeLinkedList(head);
+    }
+}
+
 void printLinkedList(linkedList* head){
     while(head!=NULL){
         printf("%i->",head->data);
